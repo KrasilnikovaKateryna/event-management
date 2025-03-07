@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Management API Documentation</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
+        h1, h2, h3 { color: #2c3e50; }
+        code { background: #ecf0f1; padding: 2px 5px; border-radius: 4px; }
+        pre { background: #ecf0f1; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        .endpoint { font-weight: bold; color: #2980b9; }
+    </style>
+</head>
+<body>
+    <h1>Event Management API Documentation</h1>
+    <h2>Base URL</h2>
+    <p><code>http://127.0.0.1:8000/</code></p>
+
+    <h2>User Management</h2>
+    <h3>1. Register a User</h3>
+    <p class="endpoint">POST /register/</p>
+    <pre>{
+    "email": "your_email",
+    "password": "your_password"
+}</pre>
+    <p>Response:</p>
+    <pre>{
+    "email": "your_email",
+    "password": "your_password"
+}</pre>
+
+
+    <h2>Authentication</h2>
+    <h3>1. Obtain Token</h3>
+    <p class="endpoint">POST /api/token/</p>
+    <pre>{
+    "email": "your_email",
+    "password": "your_password"
+}</pre>
+    <p>Response:</p>
+    <pre>{
+    "refresh": "refresh_token",
+    "access": "access_token"
+}</pre>
+    <p><strong>Access Token Duration:</strong> 1 day</p>
+    <p><strong>Refresh Token Duration:</strong> 30 days</p>
+
+    <h3>2. Refresh Token</h3>
+    <p class="endpoint">POST /api/token/refresh/</p>
+    <pre>{ "refresh": "refresh_token" }</pre>
+    <p>Response:</p>
+    <pre>{
+    "access": "new_access_token"
+}</pre>
+
+
+    <h2>Event Management</h2>
+    <h3>1. Create an Event</h3>
+    <p class="endpoint">POST /events/</p>
+    <pre>{
+    "title": "New Event",
+    "description": "Description",
+    "date": "2025-06-10T12:00:00Z",
+    "location": "New York City"
+}</pre>
+    <p>Response:</p>
+    <pre>{
+    "title": "New Event",
+    "description": "Description",
+    "date": "2025-06-10T12:00:00Z",
+    "location": "New York City",
+    "organizer": {id}
+}</pre>
+    <p><strong>Note:</strong> The user who creates the event automatically becomes the organizer.</p>
+
+    <h3>2. Retrieve Event List</h3>
+    <p class="endpoint">GET /events/</p>
+    <p>Response: list of Event objects</p>
+    <pre>[
+    {
+        "title": "title1",
+        "description": "description1",
+        "date": "2025-06-10T12:00:00Z",
+        "location": "city1",
+        "organizer": {id1}
+    },
+    {
+        "title": "title2",
+        "description": "description2",
+        "date": "2023-06-10T12:00:00Z",
+        "location": "city2",
+        "organizer": {id2}
+    }
+]</pre>
+
+    <h3>3. Retrieve an Event</h3>
+    <p class="endpoint">GET /events/{id}/</p>
+    <p>Response:</p>
+    <pre>{
+    "title": "New Event",
+    "description": "Description",
+    "date": "2025-06-10T12:00:00Z",
+    "location": "New York City",
+    "organizer": {id}
+}</pre>
+    <p><strong>Note:</strong> Only the event organizer can retrieve the event details. Others will receive:</p>
+    <pre>{
+        "detail": "You do not have permission to perform this action."
+}</pre>
+
+    <h3>4. Update an Event</h3>
+    <p class="endpoint">PUT /events/{id}/</p>
+    <pre>{
+    "title": "Updated Event",
+    "description": "Updated Description",
+    "location": "Updated Location",
+    "date": "2025-12-31"
+}</pre>
+    <p>Response: updated Event object</p>
+    <pre>{
+    "title": "Updated Event",
+    "description": "Updated Description",
+    "location": "Updated Location",
+    "date": "2025-12-31",
+    "organizer": {id}
+}</pre>
+    <p><strong>Note:</strong> Only the event organizer can retrieve the event details. Others will receive:</p>
+    <pre>{
+        "detail": "You do not have permission to perform this action."
+}</pre>
+
+    <h3>5. Delete an Event</h3>
+    <p class="endpoint">DELETE /events/{id}/</p>
+    <p><strong>Note:</strong> Only the event organizer can retrieve the event details. Others will receive:</p>
+    <pre>{
+        "detail": "You do not have permission to perform this action."
+}</pre>
+
+    <h3>6. Search an Event</h3>
+    <p>Events can be searched by <code>title</code>, <code>description</code>, or <code>location</code>.</p>
+    <p class="endpoint">GET /events?search=your-search-query</p>
+    <pre>Example: /api/events?search=my event</pre>
+        <p>Response: list of Event objects</p>
+    <pre>[
+    {
+        "title": "My Event",
+        "description": "description1",
+        "date": "2025-06-10T12:00:00Z",
+        "location": "city1",
+        "organizer": {id1}
+    },
+    {
+        "title": "My Event",
+        "description": "description2",
+        "date": "2023-06-10T12:00:00Z",
+        "location": "city2",
+        "organizer": {id2}
+    }
+]</pre>
+
+
+    <h2>Event Registration</h2>
+    <h3>Register a User for an Event</h3>
+    <p class="endpoint">POST /events/{id}/register/</p>
+    <pre>{ "email": "user-email" }</pre>
+    <p>Response: updated Event object</p>
+    <pre>{
+    "status": "registered"
+}</pre>
+    <p> New attendee will receive an email with content:</p>
+    <pre>Organizer {organizer-email} registered you as a attendee to the event '{event-title}'</pre>
+    <p><strong>Note:</strong> You need to config email variables in the settings of your project.</p>
+
+    <h3>Unregister a User from an Event</h3>
+    <p class="endpoint">POST /events/{id}/unregister/</p>
+    <pre>{ "email": "user-email" }</pre>
+    <p>Response: updated Event object</p>
+    <pre>{
+    "status": "unregistered"
+}</pre>
+
+</body>
+</html>
